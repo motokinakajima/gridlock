@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>GridLock</title>
+</head>
+<body>
+<h1>requests</h1>
+<table style="border-collapse: collapse;">
+    <% for(var i in content){%>
+        <tr style="border:1px solid black;">
+            <%let obj = content[i];%>
+            <th style="border:1px solid black;"><%= obj.id%></th>
+            <td style="border:1px solid black;"><%= obj.mail_address%></td>
+            <td style="border:1px solid black;"><%= obj.input_text%></td>
+        </tr>
+    <%}%>
+</table>
+<form action="/">
+    <input type="submit" value="go back to lobby" src="/">
+</form>
+</body>
+</html>

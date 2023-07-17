@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>GridLock</title>
+    <link rel='stylesheet' href='stylesheets/style.css'/>
+</head>
+<body>
+<h1>GridLock</h1>
+<form action="/singleplayer">
+    <input type="submit" value="Single Player">
+</form>
+<form method="post" action="/matching">
+    <p>Player Name</p>
+    <label>
+        <input required type="text" name="name">
+    </label>
+    <p>Room ID</p>
+    <label>
+        <input required type="text" name="room_id">
+    </label>
+    <input type="submit" value="Multiplayer">
+</form>
+<form method="post" action="/matching">
+    <p>Player Name</p>
+    <label>
+        <input required type="text" name="name">
+    </label>
+    <input type="submit" value="Public Game">
+</form>
+<form action="/help">
+    <input type="submit" value="information">
+</form>
+<form action="/contact">
+    <input type="submit" value="contact us">
+</form>
+</body>
+</html>

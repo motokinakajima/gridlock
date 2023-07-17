@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>GridLock</title>
+    <link rel='stylesheet' href='/stylesheets/game.css'/>
+</head>
+<body>
+<audio id="move">
+    <source src="/audios/move.mp3" type="audio/mpeg">
+</audio>
+<audio id="cannot_move">
+    <source src="/audios/cannot_move.mp3" type="audio/mpeg">
+</audio>
+<h1 id="Title">matching</h1>
+<div id="content">
+    <p id="errMessage"></p>
+    <img id="loadingImage" src="/images/loading.gif" alt="">
+    <p id="wait">Waiting for other players</p>
+    <p id="turn"></p>
+    <p id="tabooP"></p>
+</div>
+<table style="display: none" align="center" id="socketTable">
+    <thead>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+<div id="form-container">
+    <form action="/">
+        <input type="submit" value="Go Back to lobby">
+    </form>
+</div>
+<script>
+    const UsrName = '<%= usrName%>';
+    const RoomID = '<%= roomID%>';
+    const IsPublic = '<%= isPublic%>'
+</script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/javascripts/multiplayer.js"></script>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="1874f0b9-e99b-4c3c-8d75-6b749894f48a" name="Changes" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="CSS File" />
+        <option value="JavaScript File" />
+      </list>
+    </option>
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectId" id="2Nj1S5a6ru9IcXhuFpWGO48YZgI" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;javascript.nodejs.core.library.configured.version&quot;: &quot;18.15.0&quot;,
+    &quot;javascript.nodejs.core.library.typings.version&quot;: &quot;18.15.0&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/motokinakajima/programs/website/onlinegame/online_game/bin/www&quot;,
+    &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_interpreter_path&quot;: &quot;node&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RunManager">
+    <configuration name="www" type="NodeJSConfigurationType" nameIsGenerated="true" path-to-js-file="online_game/bin/www" working-dir="$PROJECT_DIR$">
+      <EXTENSION ID="com.jetbrains.nodejs.run.NodeStartBrowserRunConfigurationExtension">
+        <browser name="98ca6316-2f89-46d9-a9e5-fa9e2b0625b3" start="true" url="http://192.168.1.16:3000" />
+      </EXTENSION>
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="1874f0b9-e99b-4c3c-8d75-6b749894f48a" name="Changes" comment="" />
+      <created>1680162673839</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1680162673839</updated>
+      <workItem from="1680162674839" duration="326000" />
+      <workItem from="1680163859397" duration="7251000" />
+      <workItem from="1680179979725" duration="1218000" />
+      <workItem from="1680181216253" duration="5360000" />
+      <workItem from="1680187813641" duration="2227000" />
+      <workItem from="1680190461647" duration="2125000" />
+      <workItem from="1680241262247" duration="3623000" />
+      <workItem from="1680247325453" duration="1179000" />
+      <workItem from="1680319378273" duration="6034000" />
+      <workItem from="1680858781216" duration="11096000" />
+      <workItem from="1680965254266" duration="7401000" />
+      <workItem from="1681014170077" duration="241000" />
+      <workItem from="1681014416923" duration="346000" />
+      <workItem from="1681014770037" duration="9690000" />
+      <workItem from="1681114976916" duration="25790000" />
+      <workItem from="1681565895623" duration="3226000" />
+      <workItem from="1681731233731" duration="34000" />
+      <workItem from="1681807607225" duration="540000" />
+      <workItem from="1681812059175" duration="6394000" />
+      <workItem from="1681904831972" duration="10442000" />
+      <workItem from="1682169574295" duration="47475000" />
+      <workItem from="1682593735703" duration="605000" />
+      <workItem from="1682596942201" duration="10042000" />
+      <workItem from="1682820123690" duration="7970000" />
+      <workItem from="1683544572371" duration="4930000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>
