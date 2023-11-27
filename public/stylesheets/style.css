@@ -1,0 +1,113 @@
+/* apply some basic styles to the body and h1 element */
+body {
+    user-select: none;
+    background-color: #FFFFFF;
+    margin: 0;
+    padding: 0;
+    font-family: "Times New Roman",Arial, sans-serif;
+}
+
+h1 {
+    font-size: 50px;
+    text-align: center;
+    margin-top: 50px;
+}
+
+h2 {
+    font-size: 30px;
+    text-align: center;
+    margin-top: 50px;
+}
+
+/* center the forms and their children */
+form {
+    text-align: center;
+    border-radius: 10px;
+    padding: 15px;
+    width: 60%;
+    margin: 10px auto;
+    background-color: #C0C0C0;
+}
+
+/* style the labels and inputs */
+label {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+textarea{
+    resize: vertical;
+    width: 60%;
+    height: 150px;
+    padding: 10px;
+    border: 2px solid gray;
+    border-radius: 10px;
+    margin: 10px auto;
+}
+
+textarea:hover{
+    background-color: #d6f1ff;
+}
+
+textarea:focus{
+    background-color: #bdeaff;
+}
+
+input[type="text"],input[type="email"],input[type="password"] {
+    padding: 10px;
+    border: 2px solid gray;
+    border-radius: 10px;
+    width: 30%;
+    margin: 10px auto;
+}
+
+input[type="text"]:hover,input[type="email"]:hover,input[type="password"]:hover {
+    background-color: #d6f1ff;
+}
+
+input[type="text"]:focus,input[type="email"]:focus,input[type="password"]:focus {
+    background-color: #bdeaff;
+}
+
+/* style the submit buttons */
+input[type="submit"] {
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #4CAF50;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+    font-size: 15px;
+}
+
+input[type="submit"]:hover {
+    background-color: #3e8e41;
+}
+
+.container {
+    border-radius: 10px;
+    padding: 10px;
+    width: 60%;
+    margin: 30px auto;
+    background-color: #C0C0C0;
+}
+
+button {
+    align-content: center;
+    padding: 20px;
+    margin: 40px;
+    border: none;
+    border-radius: 5px;
+    background-color: #4CAF50;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+    font-size: 20px;
+}
+
+button:hover {
+    background-color: #3e8e41;
+}

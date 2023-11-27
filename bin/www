@@ -1,0 +1,483 @@
+#!/usr/bin/env node
+
+/**
+ * Module dependencies.
+ */
+const app = require('../app');
+const debug = require('debug')('online_game:server');
+const http = require('http');
+const {Server} = require("socket.io");
+
+
+/**
+ * Get port from environment and store in Express.
+ */
+//const port = normalizePort(process.env.PORT || '3000');
+const port = normalizePort(process.env.PORT || '3000');
+app.set('port', port);
+
+/**
+ * Create HTTP server.
+ */
+const server = http.createServer(app);
+const io = new Server(server);
+
+app.set('socketIO', io);
+
+const rooms = {};
+
+const arrayHeight = 13;
+const arrayWidth = 13;
+
+io.on('connection', (socket) => {
+    console.log('connected!!');
+    let playerId = socket.id;
+    socket.on('disconnect',() => {
+        console.log(`Player ${playerId} disconnected`);
+        for (const [roomId, room] of Object.entries(rooms)) {
+            const playerIndex = room.ids.indexOf(playerId);
+            if (playerIndex !== -1) {
+                io.to(roomId).emit('playerLeft');
+                room.ids.splice(playerIndex, 1);
+                room.names.splice(playerIndex, 1);
+                if (room.ids.length === 0) {
+                    delete rooms[roomId];
+                }
+            }
+        }
+        console.log(rooms);
+    });
+
+    socket.on('join-room', (roomID, playerName,isPublic) => {
+        if(isPublic === 'true'){
+            console.log('public game');
+            for(let key in rooms){
+                if(rooms[key].publicRoom === true){
+                    if(rooms[key].names.includes(playerName)){
+                        console.log('skip!!');
+                    }else if(rooms[key].names.length >= 2) {
+                        console.log('skip!!');
+                    }else if(rooms[key].names.length === 1){
+                        console.log(`Public game starts at room ${key}`);
+                        rooms[key].names.push(playerName);
+                        rooms[key].ids.push(socket.id);
+                        socket.join(key);
+                        let initializedArray = new Array(arrayHeight);
+                        for (let i = 0; i < arrayHeight; i++) {
+                            initializedArray[i] = new Array(arrayWidth);
+                        }
+                        let cssArray = new Array(arrayHeight);
+                        for (let i = 0; i < arrayHeight; i++) {
+                            cssArray[i] = new Array(arrayWidth);
+                        }
+                        for (let j = 0; j < arrayWidth; j++) {
+                            for (let i = 0; i < arrayHeight; i++) {
+                                if (i % 2 === 0 && j % 2 === 1) {
+                                    let a = Math.floor(Math.random() * 2);
+                                    switch (a) {
+                                        case 0:
+                                            initializedArray[i][j] = '+';
+                                            break;
+                                        case 1:
+                                            initializedArray[i][j] = '-';
+                                            break;
+                                    }
+                                    cssArray[i][j] = 'OperatorPiece';
+                                } else if (i % 2 === 1 && j % 2 === 0) {
+                                    let a = Math.floor(Math.random() * 2);
+                                    switch (a) {
+                                        case 0:
+                                            initializedArray[i][j] = '+';
+                                            break;
+                                        case 1:
+                                            initializedArray[i][j] = '-';
+                                            break;
+                                    }
+                                    cssArray[i][j] = 'OperatorPiece';
+                                }else {
+                                    let a = Math.floor(Math.random() * 9) + 1;
+                                    initializedArray[i][j] = a.toString();
+                                    cssArray[i][j] = 'NumberPiece';
+                                }
+                            }
+                        }
+                        for(let i = 0;i < Math.floor((arrayHeight*arrayWidth)*0.1);i++){
+                            let x = Math.floor(Math.random()*arrayHeight);
+                            let y = Math.floor(Math.random()*arrayWidth);
+                            initializedArray[x][y] = '💀';
+                            cssArray[x][y] = 'SkullPiece';
+                        }
+                        for(let i = 0;i < Math.floor((arrayHeight*arrayWidth)*0.1);i++){
+                            let x = Math.floor(Math.random()*arrayHeight);
+                            let y = Math.floor(Math.random()*arrayWidth);
+                            initializedArray[x][y] = '';
+                            cssArray[x][y] = 'DeletedPiece';
+                        }
+                        currentNumber = 0;
+                        initializedArray[Math.floor(arrayHeight/2)][Math.floor(arrayWidth/2)] = '0';
+                        cssArray[Math.floor(arrayHeight/2)][Math.floor(arrayWidth/2)] = 'SelectNumberPiece';
+                        let currentCoordinate = [Math.floor(arrayHeight/2),Math.floor(arrayWidth/2)];
+                        console.log(rooms);
+                        io.to(key).emit('start-game',rooms[key].names);
+                        io.to(key).emit('send-data',Math.floor(Math.random()*9)+1,rooms[key].names,key,initializedArray,cssArray,rooms[key].names[0],currentCoordinate,1,0);
+                        return;
+                    }
+                }
+            }
+            let isUnique = false;
+            let publicKey = '';
+            while(isUnique === false){
+                isUnique = true;
+                const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+                let result = '';
+                for (let i = 0; i < 10; i++) {
+                    result += characters.charAt(Math.floor(Math.random() * characters.length));
+                }
+                for(let key in rooms){
+                    if(rooms[key] === result){
+                        isUnique = false;
+                    }
+                }
+                if(isUnique === true){
+                    publicKey = result;
+                }
+            }
+            rooms[publicKey] = {
+                names: [playerName],
+                ids: [socket.id],
+                publicRoom: true
+            }
+            socket.join(publicKey);
+            console.log(`Created public room ${publicKey}`);
+            console.log(rooms);
+        }
+        else{
+            const room = rooms[roomID];
+            if (!room) {
+                rooms[roomID] = {
+                    names: [playerName],
+                    ids: [socket.id],
+                    publicRoom: false
+                };
+                socket.join(roomID);
+                console.log(`Created room ${roomID}`);
+                return;
+            }
+            if (room.names.length >= 2) {
+                console.error(`Room ${roomID} is full`);
+                socket.emit('err', `Room ${roomID} is full`);
+                return;
+            }
+            if (room.names.includes(playerName)) {
+                console.error(`Player ${playerName} is already in room ${roomID}`);
+                socket.emit('err', `Player ${playerName} is already in room ${roomID}`);
+                return;
+            }
+            if (room.names.length === 1) {
+                console.log(`Public game starts at room ${roomID}`);
+                rooms[roomID].names.push(playerName);
+                rooms[roomID].ids.push(socket.id);
+                socket.join(roomID);
+                let initializedArray = new Array(arrayHeight);
+                for (let i = 0; i < arrayHeight; i++) {
+                    initializedArray[i] = new Array(arrayWidth);
+                }
+                let cssArray = new Array(arrayHeight);
+                for (let i = 0; i < arrayHeight; i++) {
+                    cssArray[i] = new Array(arrayWidth);
+                }
+                for (let j = 0; j < arrayHeight; j++) {
+                    for (let i = 0; i < arrayWidth; i++) {
+                        if (i % 2 === 0 && j % 2 === 1) {
+                            let a = Math.floor(Math.random() * 2);
+                            switch (a) {
+                                case 0:
+                                    initializedArray[i][j] = '+';
+                                    break;
+                                case 1:
+                                    initializedArray[i][j] = '-';
+                                    break;
+                            }
+                            cssArray[i][j] = 'OperatorPiece';
+                        } else if (i % 2 === 1 && j % 2 === 0) {
+                            let a = Math.floor(Math.random() * 2);
+                            switch (a) {
+                                case 0:
+                                    initializedArray[i][j] = '+';
+                                    break;
+                                case 1:
+                                    initializedArray[i][j] = '-';
+                                    break;
+                            }
+                            cssArray[i][j] = 'OperatorPiece';
+                        }else {
+                            let a = Math.floor(Math.random() * 9) + 1;
+                            initializedArray[i][j] = a.toString();
+                            cssArray[i][j] = 'NumberPiece';
+                        }
+                    }
+                }
+                for(let i = 0;i < Math.floor((arrayHeight*arrayWidth)*0.1);i++){
+                    let x = Math.floor(Math.random()*arrayHeight);
+                    let y = Math.floor(Math.random()*arrayWidth);
+                    initializedArray[x][y] = '💀';
+                    cssArray[x][y] = 'SkullPiece';
+                }
+                for(let i = 0;i < Math.floor((arrayHeight*arrayWidth)*0.1);i++){
+                    let x = Math.floor(Math.random()*arrayHeight);
+                    let y = Math.floor(Math.random()*arrayWidth);
+                    initializedArray[x][y] = '';
+                    cssArray[x][y] = 'DeletedPiece';
+                }
+                currentNumber = 0;
+                initializedArray[Math.floor(arrayWidth/2)][Math.floor(arrayHeight/2)] = '0';
+                cssArray[Math.floor(arrayWidth/2)][Math.floor(arrayHeight/2)] = 'SelectNumberPiece';
+                let currentCoordinate = [Math.floor(arrayWidth/2),Math.floor(arrayHeight/2)];
+                console.log(rooms);
+                io.to(roomID).emit('start-game',rooms[roomID].names);
+                io.to(roomID).emit('send-data',Math.floor(Math.random()*9)+1,rooms[roomID].names,roomID,initializedArray,cssArray,rooms[roomID].names[0],currentCoordinate,1,0);
+                return;
+            }
+            room.name.push(playerName);
+            room.ids.push(socket.id);
+            console.log(`Player ${playerName} joined room ${roomID}`);
+            socket.join(roomID);
+        }
+    });
+
+    socket.on('data', (data) => {
+        console.log(data); // { message: 'Hello, World!' }
+    });
+
+    socket.on('key-input',(roomID,playerName,data,cssData,coordinate,turn,key,currentNumberOnline,operator,taboo)=>{
+        currentNumberOnline = parseInt(currentNumberOnline);
+        const room = rooms[roomID];
+        switch(key){
+            case 'up':
+                if (data[coordinate[0] - 1][coordinate[1]] === '+') {
+                    operator = 0;
+                    cssData[coordinate[0] - 1][coordinate[1]] = 'SelectPlusPiece';
+                    data[coordinate[0] - 1][coordinate[1]] = currentNumberOnline.toString();
+                } else if (data[coordinate[0] - 1][coordinate[1]] === '-') {
+                    operator = 1;
+                    cssData[coordinate[0] - 1][coordinate[1]] = 'SelectMinusPiece';
+                    data[coordinate[0] - 1][coordinate[1]] = currentNumberOnline.toString();
+                } else if(data[coordinate[0] - 1][coordinate[1]] !== '💀') {
+                    if (operator === 0) {
+                        currentNumberOnline += parseInt(data[coordinate[0] - 1][coordinate[1]]);
+                    } else if(operator === 1) {
+                        currentNumberOnline -= parseInt(data[coordinate[0] - 1][coordinate[1]]);
+                    }
+                    cssData[coordinate[0] - 1][coordinate[1]] = 'SelectNumberPiece';
+                }else{
+                    cssData[coordinate[0]][coordinate[1]] = 'DeletedPiece';
+                    data[coordinate[0]][coordinate[1]] = '';
+                    coordinate[0]--;
+                    data[coordinate[0]][coordinate[1]] = '💀';
+                    currentNumberOnline = taboo;
+                    break;
+                }
+                cssData[coordinate[0]][coordinate[1]] = 'DeletedPiece';
+                data[coordinate[0]][coordinate[1]] = '';
+                coordinate[0]--;
+                data[coordinate[0]][coordinate[1]] = currentNumberOnline.toString();
+                break;
+            case 'down':
+                if (data[coordinate[0] + 1][coordinate[1]] === '+') {
+                    operator = 0;
+                    cssData[coordinate[0] + 1][coordinate[1]] = 'SelectPlusPiece';
+                    data[coordinate[0] + 1][coordinate[1]] = currentNumberOnline.toString();
+                } else if (data[coordinate[0] + 1][coordinate[1]] === '-') {
+                    operator = 1;
+                    cssData[coordinate[0] + 1][coordinate[1]] = 'SelectMinusPiece';
+                    data[coordinate[0] + 1][coordinate[1]] = currentNumberOnline.toString();
+                } else if(data[coordinate[0] + 1][coordinate[1]] !== '💀') {
+                    if (operator === 0) {
+                        currentNumberOnline += parseInt(data[coordinate[0] + 1][coordinate[1]]);
+                    } else if(operator === 1) {
+                        currentNumberOnline -= parseInt(data[coordinate[0] + 1][coordinate[1]]);
+                    }
+                    cssData[coordinate[0] + 1][coordinate[1]] = 'SelectNumberPiece';
+                }else{
+                    cssData[coordinate[0]][coordinate[1]] = 'DeletedPiece';
+                    data[coordinate[0]][coordinate[1]] = '';
+                    coordinate[0]++;
+                    data[coordinate[0]][coordinate[1]] = '💀';
+                    currentNumberOnline = taboo;
+                    break;
+                }
+                cssData[coordinate[0]][coordinate[1]] = 'DeletedPiece';
+                data[coordinate[0]][coordinate[1]] = '';
+                coordinate[0]++;
+                data[coordinate[0]][coordinate[1]] = currentNumberOnline.toString();
+                break;
+            case 'left':
+                if (data[coordinate[0]][coordinate[1] - 1] === '+') {
+                    operator = 0;
+                    cssData[coordinate[0]][coordinate[1] - 1] = 'SelectPlusPiece';
+                    data[coordinate[0]][coordinate[1] - 1] = currentNumberOnline.toString();
+                } else if (data[coordinate[0]][coordinate[1] - 1] === '-') {
+                    operator = 1;
+                    cssData[coordinate[0]][coordinate[1] - 1] = 'SelectMinusPiece';
+                    data[coordinate[0]][coordinate[1] - 1] = currentNumberOnline.toString();
+                } else if(data[coordinate[0]][coordinate[1] - 1] !== '💀') {
+                    if (operator === 0) {
+                        currentNumberOnline += parseInt(data[coordinate[0]][coordinate[1] - 1]);
+                    } else if(operator === 1) {
+                        currentNumberOnline -= parseInt(data[coordinate[0]][coordinate[1] - 1]);
+                    }
+                    cssData[coordinate[0]][coordinate[1] - 1] = 'SelectNumberPiece';
+                }
+                else{
+                    cssData[coordinate[0]][coordinate[1]] = 'DeletedPiece';
+                    data[coordinate[0]][coordinate[1]] = '';
+                    coordinate[1]--;
+                    data[coordinate[0]][coordinate[1]] = '💀';
+                    currentNumberOnline = taboo;
+                    break;
+                }
+                cssData[coordinate[0]][coordinate[1]] = 'DeletedPiece';
+                data[coordinate[0]][coordinate[1]] = '';
+                coordinate[1]--;
+                data[coordinate[0]][coordinate[1]] = currentNumberOnline.toString();
+                break;
+            case 'right':
+                if (data[coordinate[0]][coordinate[1] + 1] === '+') {
+                    operator = 0;
+                    cssData[coordinate[0]][coordinate[1] + 1] = 'SelectPlusPiece';
+                    data[coordinate[0]][coordinate[1] + 1] = currentNumberOnline.toString();
+                } else if (data[coordinate[0]][coordinate[1] + 1] === '-') {
+                    operator = 1;
+                    cssData[coordinate[0]][coordinate[1] + 1] = 'SelectMinusPiece';
+                    data[coordinate[0]][coordinate[1] + 1] = currentNumberOnline.toString();
+                } else if(data[coordinate[0]][coordinate[1] + 1] !== '💀') {
+                    if (operator === 0) {
+                        currentNumberOnline += parseInt(data[coordinate[0]][coordinate[1] + 1]);
+                    } else if(operator === 1) {
+                        currentNumberOnline -= parseInt(data[coordinate[0]][coordinate[1] + 1]);
+                    }
+                    cssData[coordinate[0]][coordinate[1] + 1] = 'SelectNumberPiece';
+                }
+                else{
+                    cssData[coordinate[0]][coordinate[1]] = 'DeletedPiece';
+                    data[coordinate[0]][coordinate[1]] = '';
+                    coordinate[1]++;
+                    data[coordinate[0]][coordinate[1]] = '💀';
+                    currentNumberOnline = taboo;
+                    break;
+                }
+                cssData[coordinate[0]][coordinate[1]] = 'DeletedPiece';
+                data[coordinate[0]][coordinate[1]] = '';
+                coordinate[1]++;
+                data[coordinate[0]][coordinate[1]] = currentNumberOnline.toString();
+                break;
+        }
+        turn++;
+        let nextTurn;
+        if(turn%4 === 1 || turn%4 === 2){
+            nextTurn = room.names[0];
+        }else{
+            nextTurn = room.names[1];
+        }
+        let prevTurn;
+        if((turn-1)%4 === 1 || (turn-1)%4 === 2){
+            prevTurn = room.names[0];
+        }else{
+            prevTurn = room.names[1];
+        }
+        io.to(roomID).emit('send-data',taboo,rooms[roomID].names,roomID,data,cssData,nextTurn,coordinate,turn,currentNumberOnline,operator,prevTurn);
+    });
+
+    socket.on('clear-game',(roomID,PlayerName) =>{
+        io.to(roomID).emit('client-clear',PlayerName);
+    });
+
+    socket.on('dead-game',(roomID,PlayerName) =>{
+        io.to(roomID).emit('client-dead',PlayerName);
+    });
+
+    socket.on('leave-room',()=>{
+        console.log(`Player ${playerId} is rejoining`);
+        for (const [roomId, room] of Object.entries(rooms)) {
+            const playerIndex = room.ids.indexOf(playerId);
+            if (playerIndex !== -1) {
+                room.ids.splice(playerIndex, 1);
+                room.names.splice(playerIndex, 1);
+                if (room.ids.length === 0) {
+                    delete rooms[roomId];
+                }
+                socket.leave(roomId);
+            }
+        }
+        console.log(rooms);
+    })
+});
+
+
+/**
+ * Listen on provided port, on all network interfaces.
+ */
+
+server.listen(port);
+server.on('error', onError);
+server.on('listening', onListening);
+
+/**
+ * Normalize a port into a number, string, or false.
+ */
+
+function normalizePort(val) {
+    const port = parseInt(val, 10);
+
+    if (isNaN(port)) {
+        // named pipe
+        return val;
+    }
+
+    if (port >= 0) {
+        // port number
+        return port;
+    }
+
+    return false;
+}
+
+/**
+ * Event listener for HTTP server "error" event.
+ */
+
+function onError(error) {
+    if (error.syscall !== 'listen') {
+        throw error;
+    }
+
+    const bind = typeof port === 'string'
+        ? 'Pipe ' + port
+        : 'Port ' + port;
+
+    // handle specific listen errors with friendly messages
+    switch (error.code) {
+        case 'EACCES':
+            console.error(bind + ' requires elevated privileges');
+            process.exit(1);
+            break;
+        case 'EADDRINUSE':
+            console.error(bind + ' is already in use');
+            process.exit(1);
+            break;
+        default:
+            throw error;
+    }
+}
+
+/**
+ * Event listener for HTTP server "listening" event.
+ */
+
+function onListening() {
+    const addr = server.address();
+    const bind = typeof addr === 'string'
+        ? 'pipe ' + addr
+        : 'port ' + addr.port;
+    debug('Listening on ' + bind);
+}
